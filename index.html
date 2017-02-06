@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Week35 Getting Dresses!</title>
+</head>
+<body>
+  <div class="container">
+     <div id='canvas'></div>
+  </div>
+<style>
+body,html{
+  height: 99%;
+  margin: 0 auto;
+  padding: 0;
+}
+.container{
+  width: 100%;
+  margin: 0 auto;
+  height: 100%;
+}
+#canvas{width: 100%;min-height:600px;height: 100%}
+
+</style>
+<script>
+//prepare canvas
+var canvas = document.getElementById('canvas');
+// var ctx = canvas.getContext('2d');
+var xmlns='http://www.w3.org/2000/svg';
+var plot=document.createElementNS(xmlns,'svg');
+var w=canvas.clientWidth, h=canvas.clientHeight;
+plot.id='svg';
+plot.setAttribute('xmlns',xmlns);
+plot.setAttribute('width',w);
+plot.setAttribute('height',h);
+// plot.style.transform='translate(50,50)';
+// console.log(plot.style.transform)
+document.getElementById('canvas').appendChild(plot);
+console.log(canvas.clientWidth,canvas.clientHeight,plot.width,plot.height)
+
+
+var alldata={};
+function dataloaded(data,name){
+  alldata[name]=data;//store data to object and use them by property name.
+  // console.table(alldata.main)
+  const showers=alldata.main.filter(el=>el.shower==1);
+  const dresses=alldata.main.filter(el=>el.shower==0);
+  const portionY=(h-50)/690;//margin to each ends is 25.
+  const portionX=(w-80)/(14*7);//margin to each ends is 40;each day is 14 lines width.
+  const max=dresses.map(el=>el.off).reduce((a,b)=>Math.max(a,b))
+  const min=dresses.map(el=>el.on).reduce((a,b)=>Math.min(a,b))
+  // console.table(dresses)
+  console.log(portionX,portionY)
+  const dressg=document.createElementNS(xmlns,'g');
+  dressg.setAttribute('id','dress')
+  document.getElementById('svg').appendChild(dressg);
+  dresses.forEach((el,i)=>{
+    var linecolor=colorkey.find(e=>e.id==el.color).color;    
+    const line=document.createElementNS(xmlns,'line');
+    line.setAttribute('x1',(el.order+(el.date-1)*14)*portionX+40)
+    line.setAttribute('y1',el.on*portionY+25)
+    line.setAttribute('x2',(el.order+(el.date-1)*14)*portionX+40)
+    line.setAttribute('y2',el.off*portionY+25)
+    line.style.strokeWidth=2;
+    line.style.stroke=linecolor;
+    document.getElementById('dress').appendChild(line);
+
+    const bottomline=document.createElementNS(xmlns,'g');
+    bottomline.setAttribute('id','bottom'+i)
+    document.getElementById('svg').appendChild(bottomline);    
+    const bottom=document.createElementNS(xmlns,'line');
+    bottom.setAttribute('x1',(el.order+(el.date-1)*14)*portionX+40-portionX/2)
+    bottom.setAttribute('y1',el.off*portionY+25)
+    bottom.setAttribute('x2',(el.order+(el.date-1)*14)*portionX+40+portionX/2)
+    bottom.setAttribute('y2',el.off*portionY+25)
+    bottom.style.strokeWidth=1;
+    bottom.style.stroke='#333';
+    document.getElementById('bottom'+i).appendChild(bottom);
+    const top=document.createElementNS(xmlns,'line');
+    top.setAttribute('x1',(el.order+(el.date-1)*14)*portionX+40-portionX/2)
+    top.setAttribute('y1',el.on*portionY+25)
+    top.setAttribute('x2',(el.order+(el.date-1)*14)*portionX+40+portionX/2)
+    top.setAttribute('y2',el.on*portionY+25)
+    top.style.strokeWidth=1;
+    top.style.stroke='#333';
+    document.getElementById('bottom'+i).appendChild(top);
+
+
+    if(el.style!=''){
+      var stylecolor=colorkey.find(e=>e.id==el.stylecolor).color;
+      const style=document.createElementNS(xmlns,'line');
+      style.setAttribute('x1',(el.order+(el.date-1)*14)*portionX+40-2)
+      style.setAttribute('y1',el.on*portionY+25+1)
+      style.setAttribute('x2',(el.order+(el.date-1)*14)*portionX+40-2)
+      style.setAttribute('y2',el.off*portionY+25-1)
+      style.style.strokeWidth=3;
+      style.style.strokeDasharray=(el.style=='pattern'?'.5,8':'1,8');
+      style.style.stroke=stylecolor;
+      style.style.strokeLinecap=(el.style=='pattern'?'round':'')
+      document.getElementById('dress').appendChild(style);
+    }
+  })
+  const showerg=document.createElementNS(xmlns,'g');
+  showerg.setAttribute('id','shower')
+  document.getElementById('svg').appendChild(showerg);
+  showers.forEach(el=>{
+    for(var i=0;i<10;i++){
+      const dot=document.createElementNS(xmlns,'line');
+      dot.setAttribute('x1',(i+1+(el.date-1)*14)*portionX+40+2)
+      dot.setAttribute('y1',((el.on+el.off)/2-3)*portionY+25)
+      dot.setAttribute('x2',(i+1+(el.date-1)*14)*portionX+40)
+      dot.setAttribute('y2',((el.on+el.off)/2+3)*portionY+25)
+      dot.style.strokeWidth=1.5;
+      dot.style.stroke='#8acad5';
+      document.getElementById('shower').appendChild(dot);
+    }
+  })
+  // const bottomline=document.createElementNS(xmlns,'g');
+  // bottomline.setAttribute('id','bottom')
+  // document.getElementById('svg').appendChild(bottomline);
+  // for(var i=0;i<7;i++){
+  //   const bottom=document.createElementNS(xmlns,'line');
+  //   bottom.setAttribute('x1',(.5+i*14)*portionX+40)
+  //   bottom.setAttribute('y1',max*portionY+25)
+  //   bottom.setAttribute('x2',(10.5+i*14)*portionX+40)
+  //   bottom.setAttribute('y2',max*portionY+25)
+  //   bottom.style.strokeWidth=1.5;
+  //   bottom.style.stroke='#333';
+  //   document.getElementById('bottom').appendChild(bottom);
+  //   const top=document.createElementNS(xmlns,'line');
+  //   top.setAttribute('x1',(.5+i*14)*portionX+40)
+  //   top.setAttribute('y1',min*portionY+25)
+  //   top.setAttribute('x2',(10.5+i*14)*portionX+40)
+  //   top.setAttribute('y2',min*portionY+25)
+  //   top.style.strokeWidth=1.5;
+  //   top.style.stroke='#333';
+  //   document.getElementById('bottom').appendChild(top);
+  // }
+
+}
+
+//get the data
+const files=[{file:'dresses.csv',parse:'maindata',name:'main'}];
+function call_user_func(method, params){
+  func = window[method];
+  return func.apply(method, params);
+}
+files.forEach((file)=>{
+  const filepath=file.file;
+  const parsemethod=file.parse;
+  const name=file.name;
+fetch(filepath).then(response=>response.text())//get the whole content of file as text
+.then(text=>{
+  var allTextLines = text.split(/\r\n|\n/);//break whole text to rows
+  var lines = [];
+  var data=[];
+  for (var i=1; i<allTextLines.length; i++) {
+    var row = allTextLines[i].split(',');//break each rows to array
+    data.push(call_user_func(parsemethod,[row]))
+  
+    };  
+    // console.table(data)
+  dataloaded(data,name);//data-store function
+})
+})
+
+//define your own data as we do in d3 parse function
+function maindata(row){
+  return{      
+        date: +row[0],
+        no: +row[1],
+        order: +row[2],
+        category: row[3],
+        color: +row[4],
+        style: row[5],
+        stylecolor: +row[6],
+        on: +row[7],
+        off: +row[8],
+        shower: +row[9]
+     }
+}
+
+//set the keys
+const colorkey=[
+    {id:1,color:'#eeadab'},
+    {id:2,color:'orange'},
+    {id:3,color:'#dededc'},
+    {id:4,color:'#333'},
+    {id:5,color:'#999'},
+    {id:6,color:'#c67564'},
+    {id:7,color:'#fcea51'},
+    {id:8,color:'#8acad5'},
+    {id:9,color:'#7891c9'},
+    {id:10,color:'brown'},
+    {id:11,color:'pink'},
+    {id:12,color:'green'},
+    {id:13,color:'#c0b4cc'},
+]
+
+</script>
+</body>
+
+</html>

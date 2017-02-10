@@ -37,7 +37,26 @@ plot.setAttribute('height',h);
 // console.log(plot.style.transform)
 document.getElementById('canvas').appendChild(plot);
 console.log(canvas.clientWidth,canvas.clientHeight,plot.width,plot.height)
-
+function line(x1,x2,y1,y2,color,width,name){
+   const line=document.createElementNS(xmlns,'line');
+    line.style.transition='transform 2s'
+    line.setAttribute('x1',x1)
+    line.setAttribute('y1',y1)
+    line.setAttribute('x2',x2)
+    line.setAttribute('y2',y2)
+    line.setAttribute('data-name',name)
+    line.style.strokeWidth=width;
+    line.style.stroke=color;
+return line
+}
+function symbol(name,x,y,height){
+    const symbol = document.createElementNS(xmlns, "image");
+    symbol.href.baseVal = `pic/${name}.png`;
+    symbol.setAttribute('x',x)
+    symbol.setAttribute('y',y)
+    symbol.setAttribute('height',height)
+return symbol
+}
 
 var alldata={};
 function dataloaded(data,name){
@@ -51,91 +70,51 @@ function dataloaded(data,name){
   const min=dresses.map(el=>el.on).reduce((a,b)=>Math.min(a,b))
   // console.table(dresses)
   console.log(portionX,portionY)
+
   const dressg=document.createElementNS(xmlns,'g');
   dressg.setAttribute('id','dress')
   document.getElementById('svg').appendChild(dressg);
   dresses.forEach((el,i)=>{
-    var linecolor=colorkey.find(e=>e.id==el.color).color;    
-    const line=document.createElementNS(xmlns,'line');
-    line.setAttribute('x1',(el.order+(el.date-1)*14)*portionX+40)
-    line.setAttribute('y1',el.on*portionY+25)
-    line.setAttribute('x2',(el.order+(el.date-1)*14)*portionX+40)
-    line.setAttribute('y2',el.off*portionY+25)
-    line.style.strokeWidth=2;
-    line.style.stroke=linecolor;
-    document.getElementById('dress').appendChild(line);
+    var linecolor=colorkey.find(e=>e.id==el.color).color; 
+    document.getElementById('dress').appendChild(line((el.order+(el.date-1)*14)*portionX+40,(el.order+(el.date-1)*14)*portionX+40,el.on*portionY+25,el.off*portionY+25,linecolor,2,'dress'));
 
     const bottomline=document.createElementNS(xmlns,'g');
-    bottomline.setAttribute('id','bottom'+i)
-    document.getElementById('svg').appendChild(bottomline);    
-    const bottom=document.createElementNS(xmlns,'line');
-    bottom.setAttribute('x1',(el.order+(el.date-1)*14)*portionX+40-portionX/2)
-    bottom.setAttribute('y1',el.off*portionY+25)
-    bottom.setAttribute('x2',(el.order+(el.date-1)*14)*portionX+40+portionX/2)
-    bottom.setAttribute('y2',el.off*portionY+25)
-    bottom.style.strokeWidth=1;
-    bottom.style.stroke='#333';
-    document.getElementById('bottom'+i).appendChild(bottom);
-    const top=document.createElementNS(xmlns,'line');
-    top.setAttribute('x1',(el.order+(el.date-1)*14)*portionX+40-portionX/2)
-    top.setAttribute('y1',el.on*portionY+25)
-    top.setAttribute('x2',(el.order+(el.date-1)*14)*portionX+40+portionX/2)
-    top.setAttribute('y2',el.on*portionY+25)
-    top.style.strokeWidth=1;
-    top.style.stroke='#333';
-    document.getElementById('bottom'+i).appendChild(top);
-
+    bottomline.setAttribute('id','endline'+i)
+    document.getElementById('svg').appendChild(bottomline);
+    document.getElementById('endline'+i).appendChild(line((el.order+(el.date-1)*14)*portionX+40-portionX/2,(el.order+(el.date-1)*14)*portionX+40+portionX/2,el.off*portionY+25,el.off*portionY+25,'#333',1,'bottom'));
+    document.getElementById('endline'+i).appendChild(line((el.order+(el.date-1)*14)*portionX+40-portionX/2,(el.order+(el.date-1)*14)*portionX+40+portionX/2,el.on*portionY+25,el.on*portionY+25,'#333',1,'top'));
 
     if(el.style!=''){
       var stylecolor=colorkey.find(e=>e.id==el.stylecolor).color;
-      const style=document.createElementNS(xmlns,'line');
-      style.setAttribute('x1',(el.order+(el.date-1)*14)*portionX+40-2)
-      style.setAttribute('y1',el.on*portionY+25+1)
-      style.setAttribute('x2',(el.order+(el.date-1)*14)*portionX+40-2)
-      style.setAttribute('y2',el.off*portionY+25-1)
-      style.style.strokeWidth=3;
+      const style=line((el.order+(el.date-1)*14)*portionX+40-2,(el.order+(el.date-1)*14)*portionX+40-2,el.on*portionY+25+1,el.off*portionY+25-1,stylecolor,3,'pattern')
       style.style.strokeDasharray=(el.style=='pattern'?'.5,8':'1,8');
-      style.style.stroke=stylecolor;
       style.style.strokeLinecap=(el.style=='pattern'?'round':'')
       document.getElementById('dress').appendChild(style);
     }
+
+    if(el.new==1){    
+      document.getElementById('dress').appendChild(symbol(el.category,(el.order+(el.date-1)*14)*portionX+40-3,el.on*portionY+25+2,'6px'))
+    }
+
   })
   const showerg=document.createElementNS(xmlns,'g');
   showerg.setAttribute('id','shower')
   document.getElementById('svg').appendChild(showerg);
   showers.forEach(el=>{
     for(var i=0;i<10;i++){
-      const dot=document.createElementNS(xmlns,'line');
-      dot.setAttribute('x1',(i+1+(el.date-1)*14)*portionX+40+2)
-      dot.setAttribute('y1',((el.on+el.off)/2-3)*portionY+25)
-      dot.setAttribute('x2',(i+1+(el.date-1)*14)*portionX+40)
-      dot.setAttribute('y2',((el.on+el.off)/2+3)*portionY+25)
-      dot.style.strokeWidth=1.5;
-      dot.style.stroke='#8acad5';
-      document.getElementById('shower').appendChild(dot);
+      showerg.appendChild(line((i+1+(el.date-1)*14)*portionX+40+2,(i+1+(el.date-1)*14)*portionX+40,((el.on+el.off)/2-3)*portionY+25,((el.on+el.off)/2+3)*portionY+25,'#8acad5',1.5,'shower'));
     }
   })
-  // const bottomline=document.createElementNS(xmlns,'g');
-  // bottomline.setAttribute('id','bottom')
-  // document.getElementById('svg').appendChild(bottomline);
-  // for(var i=0;i<7;i++){
-  //   const bottom=document.createElementNS(xmlns,'line');
-  //   bottom.setAttribute('x1',(.5+i*14)*portionX+40)
-  //   bottom.setAttribute('y1',max*portionY+25)
-  //   bottom.setAttribute('x2',(10.5+i*14)*portionX+40)
-  //   bottom.setAttribute('y2',max*portionY+25)
-  //   bottom.style.strokeWidth=1.5;
-  //   bottom.style.stroke='#333';
-  //   document.getElementById('bottom').appendChild(bottom);
-  //   const top=document.createElementNS(xmlns,'line');
-  //   top.setAttribute('x1',(.5+i*14)*portionX+40)
-  //   top.setAttribute('y1',min*portionY+25)
-  //   top.setAttribute('x2',(10.5+i*14)*portionX+40)
-  //   top.setAttribute('y2',min*portionY+25)
-  //   top.style.strokeWidth=1.5;
-  //   top.style.stroke='#333';
-  //   document.getElementById('bottom').appendChild(top);
-  // }
+  const pajamag=document.createElementNS(xmlns,'g');
+  pajamag.setAttribute('id','pajama')
+  document.getElementById('svg').appendChild(pajamag);
+  for(var i=0;i<7;i++){
+    pajamag.appendChild(symbol('pajama',(5+i*14)*portionX+40-3,8,'12px'))
+    pajamag.appendChild(symbol('pajama',(5+i*14)*portionX+40-3,h-20,'12px'))
+    pajamag.appendChild(line((5+i*14)*portionX+40-3+8,(5+i*14)*portionX+40-3+8,12,25,'#333',1.5,'pajamatopverti'))
+    pajamag.appendChild(line((5+i*14)*portionX+40-3+3,(5+i*14)*portionX+40-3+12,25,25,'#333',1.5,'pajamatophori'))
+    pajamag.appendChild(line((5+i*14)*portionX+40-3+8,(5+i*14)*portionX+40-3+8,690*portionY+25-4,690*portionY+25+16,'#333',1.5,'pajamabottomverti'))
+  }
 
 }
 
@@ -168,7 +147,7 @@ fetch(filepath).then(response=>response.text())//get the whole content of file a
 function maindata(row){
   return{      
         date: +row[0],
-        no: +row[1],
+        new: +row[1],
         order: +row[2],
         category: row[3],
         color: +row[4],

@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32.8" height="24" viewBox="0 0 32.8 24">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: none;
+        stroke: #231f20;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-width: 3px;
+      }
+    </style>
+  </defs>
+  <title>pajama</title>
+  <g id="Layer_2" data-name="Layer 2">
+    <g id="Layer_1-2" data-name="Layer 1">
+      <line class="cls-1" x1="6.58" y1="22.5" x2="25.58" y2="1.5"/>
+      <line class="cls-1" x1="7.28" y1="3.46" x2="25.58" y2="21.75"/>
+      <line class="cls-1" x1="1.5" y1="12.66" x2="31.3" y2="12.66"/>
+    </g>
+  </g>
+</svg>
